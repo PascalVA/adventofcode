@@ -39,10 +39,8 @@ func part2() int {
 	startTime := time.Now()
 	defer func() { fmt.Printf("PART 2 took %s\n", time.Since(startTime)) }()
 
-	var (
-		currentValue, hi, lo int
-		seen []int
-	)
+	var currentValue int
+	seen := make(map[int]bool)
 	numbers := get_input()
 
 	for i := 0; true; i++ {
@@ -50,31 +48,14 @@ func part2() int {
 			i = 0
 		}
 		currentValue = currentValue + numbers[i]
-
-		// if highest number, or lowest number seen
-		// it is impossible to be a duplicate
-		if currentValue > hi {
-			hi = currentValue
-		} else if currentValue < lo {
-			lo = currentValue
+		if seen[currentValue] {
+			break
 		} else {
-			if intInSlice(seen, currentValue) {
-				break
-			}
+			seen[currentValue] = true
 		}
-		seen = append(seen, currentValue)
 	}
 
 	return currentValue
-}
-
-func intInSlice(slice []int, n int) bool {
-	for i := range(slice) {
-		if slice[i] == n {
-			return true
-		}
-	}
-        return false
 }
 
 func main() {
