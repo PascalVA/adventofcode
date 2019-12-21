@@ -55,10 +55,12 @@ class IntcodeComp(object):
         self.ptr += 4
 
     def write(self):
+        if len(self.inputs) == 0:
+            return False
         addr = self.mem[self.ptr + 1]
         self.mem[addr] = self.inputs.pop(0)
         self.ptr += 2
-        
+
     def read(self):
         addr = self.ptr + 1
         value = self._parse_param(self.mem[addr], self.modes[0])
@@ -90,14 +92,17 @@ class IntcodeComp(object):
         self.modes[1] = int(inst[1])
         self.modes[2] = int(inst[0])
 
-    def run(self):
+    def run(self, inp=[]):
+        self.inputs.extend(inp)
         while True:
             self._parse_instruction()
 
             if self.opcode == 99:
-                break
-            
+                return True
+
             res = self.op[self.opcode]()
+            if res is False:  # when write has no inputs
+                break
             if isinstance(res, int):
                 return res
 
@@ -107,62 +112,62 @@ class IntcodeComp(object):
 tests = [
     {
         "mem": [3,9,8,9,10,9,4,9,99,-1,8],  # inp eq 8 position mode
-        "inp": 8,
+        "inp": [8],
         "res": 1
     },
     {
         "mem": [3,9,8,9,10,9,4,9,99,-1,8],  # inp eq 8 position mode
-        "inp": 7,
+        "inp": [7],
         "res": 0
     },
     {
         "mem": [3,9,8,9,10,9,4,9,99,-1,8],  # inp eq 8 position mode
-        "inp": 9,
+        "inp": [9],
         "res": 0
     },
     {
         "mem": [3,9,7,9,10,9,4,9,99,-1,8],  # inp lt 8 position mode
-        "inp": 9,
+        "inp": [9],
         "res": 0
     },
     {
         "mem": [3,9,7,9,10,9,4,9,99,-1,8],  # inp lt 8 position mode
-        "inp": 8,
+        "inp": [8],
         "res": 0
     },
     {
         "mem": [3,9,7,9,10,9,4,9,99,-1,8],  # inp lt 8 position mode
-        "inp": 7,
+        "inp": [7],
         "res": 1
     },
     {
         "mem": [3,3,1108,-1,8,3,4,3,99],    # inp eq 8 immediate mode
-        "inp": 9,
+        "inp": [9],
         "res": 0
     },
     {
         "mem": [3,3,1108,-1,8,3,4,3,99],    # inp eq 8 immediate mode
-        "inp": 8,
+        "inp": [8],
         "res": 1
     },
     {
         "mem": [3,3,1108,-1,8,3,4,3,99],    # inp eq 8 immediate mode
-        "inp": 7,
+        "inp": [7],
         "res": 0
     },
     {
         "mem": [3,3,1107,-1,8,3,4,3,99],    # lt 8 immediate mode
-        "inp": 9,
+        "inp": [9],
         "res": 0
     },
     {
         "mem": [3,3,1107,-1,8,3,4,3,99],    # lt 8 immediate mode
-        "inp": 8,
+        "inp": [8],
         "res": 0
     },
     {
         "mem": [3,3,1107,-1,8,3,4,3,99],    # lt 8 immediate mode
-        "inp": 7,
+        "inp": [7],
         "res": 1
     }
 ]
@@ -171,4 +176,4 @@ if __name__ == '__main__':
     for test in tests:
         res = IntcodeComp(test["inp"], test["mem"]).run()
         if not(res == test["res"]):
-            print("Program %s failed" % (test["mem"], ))
+            print("Program %s failed with output: %s, expected: %s" % (test["mem"], res, test["res"]))
