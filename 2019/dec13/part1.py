@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 from intcodecomp import IntcodeComp
 from os import system
 
